@@ -13,6 +13,7 @@ pipeline {
     stages {
         stage('Clone Source') {
             steps {
+                cleanWs()
                 echo 'Cloning the repository...'
                 // Ganti URL ini dengan URL repository Git Anda
                 script{
