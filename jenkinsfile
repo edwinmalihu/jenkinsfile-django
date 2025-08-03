@@ -1,0 +1,83 @@
+pipeline {
+    // Menjalankan pipeline di agent manapun yang tersedia
+    agent any
+
+    environment{
+        urlGit = "github.com/edwinmalihu/django-webapp.git"
+        repo = "edwinmalihu"
+        appname = "django-webapp"
+        tag = "latest"
+        pathToKubeConfig = "k8s"
+    }
+
+    stages {
+        stage('Clone Source') {
+            steps {
+                echo 'Cloning the repository...'
+                // Ganti URL ini dengan URL repository Git Anda
+                script{
+                    withCredentials([string(credentialsId: 'token-github', variable: 'GITHUB_TOKEN')]) {
+                        sh "git clone --branch main https://oauth2:${GITHUB_TOKEN}@$urlGit ${appname}" 
+                    }
+                }
+            }
+        }
+
+        // TAHAP 2: Membangun Docker Image di dalam Minikube
+        stage('Build Docker Image') {
+            steps {
+                echo "Building the Docker image"
+                // 'sh' menjalankan shell script
+                script{
+                     withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', passwordVariable: 'password', usernameVariable: 'username')]) {
+                        sh """
+                            cd ${appname}
+                            docker login -u ${username} -p ${password}
+                            docker build -t ${appname} .
+                            docker tag ${appname} ${repo}/${appname}:${tag}
+                            docker push ${repo}/${appname}:${tag}
+                        """
+                     }
+
+                    
+                }
+            }
+        }
+
+        // TAHAP 3: Deploy aplikasi ke Minikube
+        stage('Deploy to Minikube') {
+            steps {
+                echo 'Deploying to Minikube cluster...'
+                script{
+                    sh """
+                        cd ${appname}
+                        cat ${pathToKubeConfig}/deployment.yaml | sed 's/{APPNAME}/${appname}/g' \
+                        | sed 's/{IMAGE}/${repo}\/${appname}:${tag}/g' \
+                        | kubectl apply -f -
+                    """ 
+                }
+            }
+        }
+
+        stage("cek Status Deployment") {
+            steps {
+                echo "Cek status deployment"
+                script{
+                    sh """
+                        kubectl rollout status deployment/${appname}
+                    """
+                }
+            }
+        }
+    }
+
+    // Blok yang dijalankan setelah pipeline selesai
+    post {
+        success {
+            echo 'Pipeline finished successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Please check the logs.'
+        }
+    }
+}
