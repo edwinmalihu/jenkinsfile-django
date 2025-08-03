@@ -37,6 +37,8 @@ pipeline {
                             docker build -t ${appname} .
                             docker tag ${appname} ${repo}/${appname}:${tag}
                             docker push ${repo}/${appname}:${tag}
+                            docker rmi ${appname} || true
+                            docker rmi ${repo}/${appname}:${tag} || true
                         """
                      }
 
