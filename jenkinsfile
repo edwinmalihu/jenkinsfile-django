@@ -52,7 +52,7 @@ pipeline {
                     sh """
                         cd ${appname}
                         cat ${pathToKubeConfig}/deployment.yaml | sed 's/{APPNAME}/${appname}/g' \
-                        | sed 's/{IMAGE}/${repo}\/${appname}:${tag}/g' \
+                        | sed 's/{REPO}/${repo}/g' | sed 's/{TAG}/${tag}/g' \
                         | kubectl apply -f -
                     """ 
                 }
