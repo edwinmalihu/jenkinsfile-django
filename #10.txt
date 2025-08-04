@@ -1,0 +1,206 @@
+Started by user edwin malihu
+Obtained jenkinsfile from git https://github.com/edwinmalihu/jenkinsfile-django.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /Users/edwinmalihu/.jenkins/workspace/pipeline-webapp
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+using credential cred-github
+Cloning the remote Git repository
+Cloning repository https://github.com/edwinmalihu/jenkinsfile-django.git
+ > git init /Users/edwinmalihu/.jenkins/workspace/pipeline-webapp # timeout=10
+Fetching upstream changes from https://github.com/edwinmalihu/jenkinsfile-django.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.39.3 (Apple Git-146)'
+using GIT_ASKPASS to set credentials 
+ > git fetch --tags --force --progress -- https://github.com/edwinmalihu/jenkinsfile-django.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git config remote.origin.url https://github.com/edwinmalihu/jenkinsfile-django.git # timeout=10
+ > git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/* # timeout=10
+Avoid second fetch
+ > git rev-parse origin/main^{commit} # timeout=10
+Checking out Revision 929c145058cee1ab0a0951040aa8518660fc98f0 (origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 929c145058cee1ab0a0951040aa8518660fc98f0 # timeout=10
+Commit message: "add jenkisfile for django web"
+ > git rev-list --no-walk 929c145058cee1ab0a0951040aa8518660fc98f0 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Clone Source)
+[Pipeline] cleanWs
+[WS-CLEANUP] Deleting project workspace...
+[WS-CLEANUP] Deferred wipeout is used...
+[WS-CLEANUP] done
+[Pipeline] echo
+Cloning the repository...
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $GITHUB_TOKEN
+[Pipeline] {
+[Pipeline] sh
+Warning: A secret was passed to "sh" using Groovy String interpolation, which is insecure.
+		 Affected argument(s) used the following variable(s): [GITHUB_TOKEN]
+		 See https://jenkins.io/redirect/groovy-string-interpolation for details.
++ git clone --branch main https://oauth2:****@github.com/edwinmalihu/django-webapp.git django-webapp
+Cloning into 'django-webapp'...
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build Docker Image)
+[Pipeline] echo
+Building the Docker image
+[Pipeline] script
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $password
+[Pipeline] {
+[Pipeline] sh
+Warning: A secret was passed to "sh" using Groovy String interpolation, which is insecure.
+		 Affected argument(s) used the following variable(s): [password]
+		 See https://jenkins.io/redirect/groovy-string-interpolation for details.
++ cd django-webapp
++ docker login -u edwinmalihu -p ****
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+Login Succeeded
++ docker build -t django-webapp .
+#0 building with "colima" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 780B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 ...
+
+#3 [auth] library/python:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12-slim
+#2 DONE 3.8s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/5] FROM docker.io/library/python:3.12-slim@sha256:9c1d9ed7593f2552a4ea47362ec0d2ddf5923458a53d0c8e30edf8b398c94a31
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 216.69kB 0.0s done
+#6 DONE 0.0s
+
+#7 [3/5] COPY requirements.txt .
+#7 CACHED
+
+#8 [2/5] WORKDIR /app
+#8 CACHED
+
+#9 [4/5] RUN pip install -r requirements.txt
+#9 CACHED
+
+#10 [5/5] COPY . .
+#10 DONE 0.0s
+
+#11 exporting to image
+#11 exporting layers done
+#11 writing image sha256:52bde216dcba5ad440d9993c7c889a88bd3c14da22402e8f959dea1624fe1cce done
+#11 naming to docker.io/library/django-webapp
+#11 naming to docker.io/library/django-webapp done
+#11 DONE 0.0s
+
+View build details: docker-desktop://dashboard/build/colima/colima/qq0kk34v1he745bxo8ics0tcw
++ docker tag django-webapp edwinmalihu/django-webapp:latest
++ docker push edwinmalihu/django-webapp:latest
+The push refers to repository [docker.io/edwinmalihu/django-webapp]
+5d6b4268ce8d: Preparing
+0a54a971a01a: Preparing
+1845ac72b088: Preparing
+71c221655323: Preparing
+05ed7b2bcaa5: Preparing
+d74514903961: Preparing
+e26286284f6e: Preparing
+dd97e58b4e81: Preparing
+d74514903961: Waiting
+e26286284f6e: Waiting
+dd97e58b4e81: Waiting
+71c221655323: Layer already exists
+0a54a971a01a: Layer already exists
+05ed7b2bcaa5: Layer already exists
+1845ac72b088: Layer already exists
+d74514903961: Layer already exists
+e26286284f6e: Layer already exists
+dd97e58b4e81: Layer already exists
+5d6b4268ce8d: Pushed
+latest: digest: sha256:f85602a362fa8c8edb3e9ef6105334ed5bf8dce265b07b549effdacbd2bef3dd size: 1993
++ docker rmi django-webapp
+Untagged: django-webapp:latest
++ docker rmi edwinmalihu/django-webapp:latest
+Untagged: edwinmalihu/django-webapp:latest
+Untagged: edwinmalihu/django-webapp@sha256:f85602a362fa8c8edb3e9ef6105334ed5bf8dce265b07b549effdacbd2bef3dd
+Deleted: sha256:52bde216dcba5ad440d9993c7c889a88bd3c14da22402e8f959dea1624fe1cce
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy to Minikube)
+[Pipeline] echo
+Deploying to Minikube cluster...
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
++ cd django-webapp
++ cat k8s/deployment.yaml
++ sed 's/{APPNAME}/django-webapp/g'
++ sed 's/{REPO}/edwinmalihu/g'
++ sed 's/{TAG}/latest/g'
++ kubectl apply -f -
+deployment.apps/django-webapp unchanged
+service/django-webapp unchanged
+ingress.networking.k8s.io/django-webapp unchanged
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (cek Status Deployment)
+[Pipeline] echo
+Cek status deployment
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
++ kubectl rollout status deployment/django-webapp
+deployment "django-webapp" successfully rolled out
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Pipeline finished successfully!
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
